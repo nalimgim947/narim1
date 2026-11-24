@@ -2,23 +2,91 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>경찰청 범죄 발생 지역별 통계 데이터 시각화</title>
 <style>
-:root{--bg:#f3f6fb;--panel:#fff;--ink:#17243b;--muted:#68758b;--line:#e4eaf2;--blue:#3568e8;--teal:#16a6a1;--orange:#ed9a38}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Malgun Gothic","Apple SD Gothic Neo",sans-serif}
-header{background:linear-gradient(115deg,#142b50,#2458a7);color:#fff;padding:34px max(22px,calc((100vw - 1240px)/2)) 30px}
-.eyebrow{font-size:12px;letter-spacing:.12em;opacity:.75;font-weight:700}h1{margin:10px 0 8px;font-size:clamp(23px,4vw,34px)}header p{margin:0;color:#d8e5ff;font-size:14px}
-main{max-width:1240px;margin:24px auto;padding:0 18px 46px}.toolbar,.panel,.kpi{background:var(--panel);border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 18px #203b6410}
-.toolbar{padding:16px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
-.control{display:flex;flex-direction:column;gap:7px;min-width:170px;flex:1}.control label{font-size:12px;color:var(--muted);font-weight:700}
-select,input{width:100%;padding:11px 12px;border:1px solid #d8e0ec;border-radius:9px;background:#fff;color:var(--ink);font-size:14px}
-button{padding:11px 16px;border:0;border-radius:9px;background:#eaf0ff;color:#2455c4;font-weight:700;cursor:pointer}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}.kpi{padding:17px 18px}.kpi .label{font-size:12px;color:var(--muted);font-weight:700}.kpi .value{font-size:25px;font-weight:800;margin-top:9px;letter-spacing:-.03em}.kpi .sub{font-size:11px;color:var(--muted);margin-top:5px}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:16px}.panel{padding:19px;min-width:0}.panel h2{font-size:16px;margin:0 0 4px}.desc{font-size:12px;color:var(--muted);margin:0 0 16px}
-canvas{width:100%;height:320px;display:block}.smallcanvas{height:300px}
-.tablewrap{overflow:auto;max-height:470px;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f7f9fc;color:#53627a;z-index:1}td.num{text-align:right;font-variant-numeric:tabular-nums}tbody tr:hover{background:#f7f9ff}.note{color:var(--muted);font-size:11px;line-height:1.7;margin-top:12px}.pill{display:inline-block;padding:4px 8px;background:#eef3ff;border-radius:20px;color:#315fc2;font-size:11px;font-weight:700}
-@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.panel{padding:15px}canvas{height:280px}}
-@media(max-width:430px){.kpi .value{font-size:20px}.toolbar{gap:9px}}
+
+:root{
+  color-scheme:dark;
+  --bg:#080f1e;--panel:#111d31;--panel2:#15243b;--ink:#eaf1ff;
+  --muted:#91a4c2;--line:#263854;--blue:#4c8dff;--teal:#35d6c2;
+  --orange:#ffb45e;--glow:0 16px 40px rgba(0,0,0,.24)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+    radial-gradient(ellipse at 12% 0%,rgba(39,103,196,.19),transparent 38%),
+    radial-gradient(ellipse at 92% 10%,rgba(36,190,181,.10),transparent 30%),
+    var(--bg);
+  color:var(--ink);font-family:Inter,Arial,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  min-height:100vh
+}
+header{
+  position:relative;overflow:hidden;color:#fff;padding:42px max(22px,calc((100vw - 1320px)/2)) 38px;
+  background:linear-gradient(115deg,#101f38 0%,#142e54 58%,#123b50 100%);
+  border-bottom:1px solid rgba(123,167,226,.22)
+}
+header:after{
+  content:"";position:absolute;width:420px;height:420px;right:8%;top:-290px;border-radius:50%;
+  border:1px solid rgba(113,174,255,.23);box-shadow:0 0 0 38px rgba(113,174,255,.035),0 0 0 78px rgba(113,174,255,.025)
+}
+.eyebrow{font-size:11px;letter-spacing:.18em;color:#8fbaff;font-weight:800}
+h1{position:relative;margin:13px 0 9px;font-size:clamp(26px,4vw,38px);letter-spacing:-.045em;font-weight:800}
+header p{position:relative;margin:0;color:#b8c9e4;font-size:14px}
+main{max-width:1320px;margin:26px auto;padding:0 20px 56px}
+.toolbar,.panel,.kpi{
+  background:linear-gradient(145deg,rgba(20,34,56,.98),rgba(15,27,46,.98));
+  border:1px solid var(--line);border-radius:16px;box-shadow:var(--glow)
+}
+.toolbar{padding:18px;display:flex;gap:13px;align-items:end;flex-wrap:wrap;margin-bottom:18px}
+.control{display:flex;flex-direction:column;gap:8px;min-width:170px;flex:1}
+.control label{font-size:11px;color:#9eb2d1;font-weight:800;letter-spacing:.03em}
+select,input{
+  width:100%;padding:12px 13px;border:1px solid #304563;border-radius:10px;
+  background:#0b1729;color:#eaf1ff;font-size:14px;outline:none;transition:.2s
+}
+select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(76,141,255,.16)}
+input::placeholder{color:#647995}
+button{
+  padding:12px 18px;border:1px solid rgba(105,159,255,.32);border-radius:10px;
+  background:linear-gradient(135deg,#3479ed,#245ac0);color:white;font-weight:800;
+  cursor:pointer;transition:transform .18s,filter .18s;box-shadow:0 7px 18px rgba(25,91,205,.25)
+}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{position:relative;overflow:hidden;padding:20px 21px;min-height:124px}
+.kpi:after{content:"";position:absolute;width:100px;height:100px;right:-38px;bottom:-55px;border-radius:50%;background:rgba(76,141,255,.09)}
+.kpi .label{font-size:11px;color:#9eb2d1;font-weight:800;letter-spacing:.04em}
+.kpi .value{font-size:29px;font-weight:850;margin-top:12px;letter-spacing:-.04em;color:#f3f7ff;font-variant-numeric:tabular-nums}
+.kpi:nth-child(1) .value{color:#76aaff}.kpi:nth-child(2) .value{color:#4edacb}
+.kpi:nth-child(3) .value{color:#ffbd72}.kpi:nth-child(4) .value{color:#b6a2ff}
+.kpi .sub{font-size:11px;color:#7f94b3;margin-top:6px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:16px}
+.panel{padding:21px;min-width:0}
+.panel h2{font-size:16px;margin:0 0 6px;color:#eff5ff;letter-spacing:-.02em}
+.desc{font-size:12px;color:#8499b8;margin:0 0 17px;line-height:1.6}
+canvas{width:100%;height:320px;display:block}
+.smallcanvas{height:300px}
+.tablewrap{overflow:auto;max-height:470px;border:1px solid #293d5a;border-radius:11px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:12px 13px;border-bottom:1px solid #263852;text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:#1a2b45;color:#a9bddb;z-index:1;font-size:11px;letter-spacing:.04em}
+td{color:#d6e1f3}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(67,123,205,.12)}
+.note{color:#8499b8;font-size:11px;line-height:1.8;margin-top:12px}
+.pill{display:inline-block;padding:5px 9px;background:#1a355b;border:1px solid #2b4e7d;border-radius:20px;color:#9fc4ff;font-size:11px;font-weight:800}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:560px){
+  header{padding-top:32px;padding-bottom:30px}
+  main{padding:0 12px 36px;margin-top:16px}
+  .kpis{gap:9px}.kpi{padding:15px;min-height:108px}
+  .kpi .value{font-size:22px}.toolbar{gap:10px;padding:14px}
+  .control{min-width:calc(50% - 8px)}.panel{padding:16px}
+  canvas{height:280px}.smallcanvas{height:270px}
+}
+
 </style></head><body>
-<header><div class="eyebrow">PUBLIC SAFETY · DATA EXPLORER</div><h1>범죄 발생 지역별 통계</h1><p>경찰청 제공 데이터 기반 · 지역 및 범죄 유형별 발생 건수 탐색</p></header>
+<header><div class="eyebrow">PUBLIC SAFETY&nbsp;&nbsp; / &nbsp;&nbsp;DATA EXPLORER</div><h1>범죄 발생 지역별 통계</h1><p>경찰청 제공 데이터 기반 · 지역 및 범죄 유형별 발생 건수 탐색</p></header>
 <main>
 <section class="toolbar">
  <div class="control"><label for="area">지역 범위</label><select id="area"><option value="전체">전체 지역</option></select></div>
